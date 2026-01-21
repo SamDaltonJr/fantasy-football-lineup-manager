@@ -6,6 +6,7 @@ export interface Player {
   position: Position;
   team: string;
   byeWeek: number;
+  opponents?: Record<number, string>; // week -> opponent team abbreviation
 }
 
 export interface RosterSlot {

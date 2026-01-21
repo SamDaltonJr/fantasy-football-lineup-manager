@@ -7,9 +7,10 @@ interface LineupGridProps {
   onSlotClick: (week: number | 'draft', slotId: string) => void;
   onDragDrop: (fromWeek: number | 'draft', fromSlot: string, toWeek: number | 'draft', toSlot: string) => void;
   selectedSlot: { week: number | 'draft'; slotId: string } | null;
+  darkMode?: boolean;
 }
 
-export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot }: LineupGridProps) {
+export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot, darkMode = false }: LineupGridProps) {
   const getPlayerById = (playerId: string | null) => {
     if (!playerId) return null;
     return state.players.find((p) => p.id === playerId) || null;
@@ -64,11 +65,23 @@ export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot }: Lin
   };
 
   return (
-    <div className="flex bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+    <div className={`flex rounded-2xl shadow-2xl overflow-hidden border ${
+      darkMode
+        ? 'bg-slate-800 border-slate-600'
+        : 'bg-white border-gray-200'
+    }`}>
       {/* Fixed Position Labels Column */}
-      <div className="flex-shrink-0 w-36 bg-gradient-to-b from-slate-100 to-slate-50 border-r-4 border-slate-300 sticky left-0 z-20">
+      <div className={`flex-shrink-0 w-36 border-r-4 sticky left-0 z-20 ${
+        darkMode
+          ? 'bg-gradient-to-b from-slate-700 to-slate-800 border-slate-600'
+          : 'bg-gradient-to-b from-slate-100 to-slate-50 border-slate-300'
+      }`}>
         {/* Header */}
-        <div className="h-16 bg-gradient-to-r from-slate-700 to-slate-800 text-white font-bold flex items-center justify-center border-b-4 border-slate-400 shadow-lg">
+        <div className={`h-16 text-white font-bold flex items-center justify-center border-b-4 shadow-lg ${
+          darkMode
+            ? 'bg-gradient-to-r from-slate-800 to-slate-900 border-slate-700'
+            : 'bg-gradient-to-r from-slate-700 to-slate-800 border-slate-400'
+        }`}>
           <span className="text-lg">Position</span>
         </div>
 
@@ -101,9 +114,25 @@ export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot }: Lin
       <div className="flex-1 overflow-x-auto">
         <div className="inline-flex">
           {allWeeks.map((week) => (
-            <div key={week} className={`flex-shrink-0 w-56 ${week === 'draft' ? 'bg-gradient-to-b from-green-50 to-emerald-50' : 'bg-gradient-to-b from-white to-gray-50'}`}>
+            <div key={week} className={`flex-shrink-0 w-56 ${
+              week === 'draft'
+                ? darkMode
+                  ? 'bg-gradient-to-b from-green-900 to-emerald-900'
+                  : 'bg-gradient-to-b from-green-50 to-emerald-50'
+                : darkMode
+                  ? 'bg-gradient-to-b from-slate-800 to-slate-900'
+                  : 'bg-gradient-to-b from-white to-gray-50'
+            }`}>
               {/* Week Header */}
-              <div className={`h-16 ${week === 'draft' ? 'bg-gradient-to-r from-green-600 to-emerald-600' : 'bg-gradient-to-r from-slate-600 to-slate-700'} text-white font-bold flex items-center justify-center border-b-4 ${week === 'draft' ? 'border-green-400' : 'border-slate-400'} border-r-4 shadow-md`}>
+              <div className={`h-16 text-white font-bold flex items-center justify-center border-b-4 border-r-4 shadow-md ${
+                week === 'draft'
+                  ? darkMode
+                    ? 'bg-gradient-to-r from-green-700 to-emerald-700 border-green-600'
+                    : 'bg-gradient-to-r from-green-600 to-emerald-600 border-green-400'
+                  : darkMode
+                    ? 'bg-gradient-to-r from-slate-700 to-slate-800 border-slate-600'
+                    : 'bg-gradient-to-r from-slate-600 to-slate-700 border-slate-400'
+              }`}>
                 <span className="text-lg">{week === 'draft' ? '🏈 DRAFT' : `Week ${week}`}</span>
               </div>
 
@@ -118,9 +147,25 @@ export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot }: Lin
                 return (
                   <div
                     key={slot.id}
-                    className={`p-2 border-b-2 border-slate-200 border-r-4 ${
-                      week === 'draft' ? 'border-r-green-400' : 'border-r-slate-300'
-                    } ${isOnBye ? 'bg-red-50' : ''} transition-colors duration-150`}
+                    className={`p-2 border-b-2 border-r-4 ${
+                      darkMode
+                        ? 'border-b-slate-700'
+                        : 'border-b-slate-200'
+                    } ${
+                      week === 'draft'
+                        ? darkMode
+                          ? 'border-r-green-600'
+                          : 'border-r-green-400'
+                        : darkMode
+                          ? 'border-r-slate-600'
+                          : 'border-r-slate-300'
+                    } ${
+                      isOnBye
+                        ? darkMode
+                          ? 'bg-red-900/30'
+                          : 'bg-red-50'
+                        : ''
+                    } transition-colors duration-150`}
                     style={{ height: '104px' }}
                     draggable={!!playerId}
                     onDragStart={(e) => handleDragStart(e, week, slot.id, playerId)}
@@ -134,6 +179,7 @@ export function LineupGrid({ state, onSlotClick, onDragDrop, selectedSlot }: Lin
                         slotPosition={slot.position}
                         onClick={() => onSlotClick(week, slot.id)}
                         isSelected={isSelected}
+                        week={week}
                       />
                       {isOnBye && (
                         <div className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded shadow">
